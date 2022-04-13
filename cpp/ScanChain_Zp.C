@@ -255,6 +255,8 @@ int ScanChain(TChain *ch, double genEventSumw, TString year, TString process) {
 
             vector<int> cand_bJets;
             unsigned int nbtagDeepFlavB = 0;
+            double max_Jet_Pt = 0, second_Jet_Pt=0;
+            int max_index=0, second_index=0;
             //bool mu_jet_sep = true;
             for ( unsigned int jet = 0; jet < nt.nJet(); jet++ ) {
                 float d_eta_1 = nt.Muon_eta().at(leadingMu_idx) - nt.Jet_eta().at(jet);
@@ -270,6 +272,19 @@ int ScanChain(TChain *ch, double genEventSumw, TString year, TString process) {
                     //nbtagDeepFlavB++; // Medium DeepJet WP
                     cand_bJets.push_back(jet);
                     h_btagDeepFlavB->Fill(nt.Jet_btagDeepFlavB().at(jet),weight*factor);
+                    if (nt.Jet_pt().at(jet)>second_Jet_Pt)
+                    {
+                        if(nt.Jet_pt().at(jet)>max_Jet_Pt)
+                        {
+                            max_Jet_Pt = nt.Jet_pt().at(jet);
+                            max_index = jet;
+                        }
+                        else
+                        {
+                            second_Jet_Pt = nt.Jet_pt().at(jet);
+                            second_index = jet;
+                        }
+                    }
                 }
             }
             h_nbtagDeepFlavB->Fill(cand_bJets.size(),weight*factor);
@@ -285,12 +300,12 @@ int ScanChain(TChain *ch, double genEventSumw, TString year, TString process) {
 
             //Fill pT distributions for the bjets....
             if ( cand_bJets.size() == 1 ){
-                 h_bjet1_pt->Fill(nt.Jet_pt().at(cand_bJets[0]),weight*factor);
+                 h_bjet1_pt->Fill(max_Jet_Pt,weight*factor);
             }
 
             if ( cand_bJets.size() > 1 ){
-                 h_bjet1_pt->Fill(nt.Jet_pt().at(cand_bJets[0]),weight*factor);
- 		 h_bjet2_pt->Fill(nt.Jet_pt().at(cand_bJets[1]),weight*factor);
+                h_bjet1_pt->Fill(max_Jet_Pt,weight*factor);
+ 		        h_bjet2_pt->Fill(second_Jet_Pt,weight*factor);
             }
 
 
